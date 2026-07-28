@@ -1,0 +1,8 @@
+root ::= Action
+
+Action ::= "{" ws "\"action\":" ws ActionType ws "," ws "\"payload\":" ws String ws "}"
+
+ActionType ::= "\"search\"" | "\"explain\"" | "\"execute\""
+
+String ::= "\"" ([^"\\] | "\\" .)* "\""
+ws ::= [ \t\n\r]*
