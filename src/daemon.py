@@ -47,6 +47,33 @@ class DaemonHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps(res).encode("utf-8"))
+        elif self.path == "/chat":
+            length = int(self.headers.get("Content-Length", 0))
+            raw_body = self.rfile.read(length)
+            
+            try:
+                body = json.loads(raw_body.decode("utf-8"))
+                if isinstance(body, str):
+                    body = json.loads(body)
+            except Exception:
+                self.send_response(400)
+                self.end_headers()
+                return
+
+            messages = body.get("messages", []) if isinstance(body, dict) else []
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/x-ndjson")
+            self.end_headers()
+
+            try:
+                for token in client.chat_stream(messages):
+                    if token:
+                        line = json.dumps({"text": token}) + "\n"
+                        self.wfile.write(line.encode("utf-8"))
+                        self.wfile.flush()
+            except Exception:
+                pass
 
         elif self.path == "/unload":
             self.send_response(200)
