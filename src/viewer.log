@@ -1,0 +1,7 @@
+[1;31m[FAILED][0m lsd (exit code 127)
+─────────────────────────────────────────────
+[1;33mOutput:[0m
+zsh:1: command not found: lsd
+─────────────────────────────────────────────
+[1;34m[ANALYZING WITH LLAMA...][0m
+
