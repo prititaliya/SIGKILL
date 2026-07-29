@@ -45,7 +45,7 @@ class LlamaClient:
     def __init__(
         self,
         model_path: str = "/Users/jatin/Models/qwen2.5-coder-3b-instruct-q2_k.gguf",
-        n_ctx: int = 4096,
+        n_ctx: int = 32768,
         n_gpu_layers: int = -1,
         grammar_path: str = DEFAULT_GRAMMAR_PATH
     ):
@@ -74,6 +74,34 @@ class LlamaClient:
             
         content = response["choices"][0]["message"]["content"]
         return json.loads(content)
+
+    def generate_command(self, prompt: str) -> dict:
+        saved_fds = _suppress_c_output()
+        try:
+            messages = [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an agentic terminal assistant. Generate a single zsh shell command "
+                        "that fulfills the user's request. Do not provide explanations or additional text. "
+                        "Output the command in JSON format with the key 'command'."
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": f"Generate a command for the following prompt: '{prompt}'"
+                }
+            ]
+            response = self.model.create_chat_completion(
+                messages=messages,
+                grammar=self.grammar,
+                temperature=0.1
+            )
+        finally:
+            _restore_c_output(saved_fds)
+        content = response["choices"][0]["message"]["content"]
+        return json.loads(content)
+            
     def chat_stream(self, messages: list[dict]):
         try:
             stream = self.model.create_chat_completion(

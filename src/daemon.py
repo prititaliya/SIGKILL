@@ -47,6 +47,28 @@ class DaemonHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps(res).encode("utf-8"))
+        elif self.path == "/generate_command":
+            length = int(self.headers.get("Content-Length", 0))
+            raw_body = self.rfile.read(length)
+            
+            try:
+                body = json.loads(raw_body)
+            except Exception:
+                self.send_response(400)
+                self.end_headers()
+                return
+
+            prompt = body.get("prompt", "")
+            if not prompt:
+                res = {"status": "error", "message": "Empty prompt"}
+            else:
+                cmd_output = client.generate_command(prompt)
+                res = {"status": "ok", "command": cmd_output}
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(res).encode("utf-8"))
         elif self.path == "/chat":
             length = int(self.headers.get("Content-Length", 0))
             raw_body = self.rfile.read(length)

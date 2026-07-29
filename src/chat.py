@@ -153,6 +153,7 @@ def main():
                             "content": f"[COMMAND OUTPUT (exit code {return_code})]:\n{clean_output}\n\nInstruction: Use the output above to answer the user request directly."
                         })
             sys.stdout.write("\n")
+            messages = []
         except (EOFError, KeyboardInterrupt):
             print("\nExiting chat...")
             break

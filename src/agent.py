@@ -38,6 +38,15 @@ def main():
         sys.exit(0)
 
     raw_args = " ".join(sys.argv[1:])
+    first_arg = raw_args.split()[0] if raw_args else ""
+    if first_arg=="yo":    
+        second_arg_as_string = raw_args[len(first_arg):].strip()      
+        res = call_daemon("/generate_command", {"prompt": second_arg_as_string})
+        if res  and isinstance(res, dict) and "command" in res:
+            cmd= res.get("command", {}).get("payload", "")
+            print(cmd)
+            sys.exit(0)
+        return;
     try:
         cmd_args = shlex.split(raw_args)
     except Exception:
